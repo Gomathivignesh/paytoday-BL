@@ -14,4 +14,14 @@ public enum UserType {
     public int getValue() {
         return value;
     }
+
+
+    public static UserType getValueOf(int i){
+        for (UserType data : UserType.values()) {
+            if (data.getValue() == i )
+                return data;
+        }
+        throw new IllegalArgumentException("data not found.");
+    }
+
 }

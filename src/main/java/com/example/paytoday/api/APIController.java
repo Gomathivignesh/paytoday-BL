@@ -45,11 +45,8 @@ public class APIController {
     }
 
 
-    @GetMapping(path = "/getD")
-
-    public String getStudentDetails(){
+    @GetMapping(path = "/test")
+    public String getDetails(){
         return "test";
-
-
     }
 }

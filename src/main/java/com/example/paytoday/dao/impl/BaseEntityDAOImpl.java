@@ -40,6 +40,8 @@ public class BaseEntityDAOImpl<T extends BaseEntity> implements BaseDAO<T> {
 
     @Override
     public void update(T obj) {
+        Session session = sessionFactory.getCurrentSession();
+        session.update(obj);
 
     }
 

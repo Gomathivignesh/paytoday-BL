@@ -1,7 +1,9 @@
 package com.example.paytoday.dao.service;
 
+import com.example.paytoday.dao.RetailerDAO;
 import com.example.paytoday.dao.UserDAO;
 
+import com.example.paytoday.model.Retailer;
 import com.example.paytoday.model.User;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.authority.SimpleGrantedAuthority;
@@ -19,13 +21,13 @@ import java.util.List;
 public class UserDetailsServiceImpl implements UserDetailsService {
 	
 	@Autowired
-	private UserDAO userDao;
+	private RetailerDAO retailerDAO;
 
 	@Autowired
 	private PasswordEncoder passwordEncoder;
 
 	public UserDetails loadUserByUsername(String userId) throws UsernameNotFoundException {
-		User user = userDao.getUserbyName(userId);
+		Retailer user = retailerDAO.getUserbyEmail(userId);
 		if(user == null){
 			throw new UsernameNotFoundException("Invalid username or password.");
 		}
@@ -33,7 +35,7 @@ public class UserDetailsServiceImpl implements UserDetailsService {
 	}
 
 	private List<SimpleGrantedAuthority> getAuthority() {
-		return Arrays.asList(new SimpleGrantedAuthority("ROLE_ADMIN"));
+		return Arrays.asList(new SimpleGrantedAuthority("ROLE_RETAILER"));
 	}
 
 }
