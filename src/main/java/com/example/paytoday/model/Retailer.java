@@ -8,6 +8,7 @@ import com.example.paytoday.Util.UserType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.Table;
+import javax.persistence.Transient;
 import java.io.Serializable;
 
 @Entity
@@ -67,14 +68,28 @@ public class Retailer extends BaseEntity implements Serializable {
     @Column(name="country")
     private String country;
 
-    @Column(name="mobile")
+    @Column(name = "mobile")
     private String mobile;
 
-    @Column(name="role")
+    @Column(name = "role")
     private int userRole;
 
-    @Column(name="user_type")
+    @Column(name = "user_type")
     private int userType;
+
+    @Column(name = "agent_id")
+    private Long agentId;
+
+    @Transient
+    private String agentEmail;
+
+    public String getAgentEmail() {
+        return agentEmail;
+    }
+
+    public void setAgentEmail(String agentEmail) {
+        this.agentEmail = agentEmail;
+    }
 
     public String getName() {
         return name;
@@ -226,5 +241,13 @@ public class Retailer extends BaseEntity implements Serializable {
 
     public void setUserType(int userType) {
         this.userType = userType;
+    }
+
+    public Long getAgentId() {
+        return agentId;
+    }
+
+    public void setAgentId(Long agentId) {
+        this.agentId = agentId;
     }
 }

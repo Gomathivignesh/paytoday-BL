@@ -51,7 +51,13 @@ public class RetailerController {
                 if(!password.isEmpty()&& password != null){
                     retailer.setPassword(password);
                     populateRetailerdata(retailer);
+                    if (retailer.getUserType() == 1) {
+                        Retailer agentData = retailerDAO.getUserbyEmail(retailer.getAgentEmail());
+                        retailer.setAgentId(agentData.getId());
+                    } else
+                        retailer.setAgentId(0L);
                 }
+
                 else {
                     responseUtil.setStatusCode("500");
                     responseUtil.setMessage("failed to save user data");
@@ -185,8 +191,8 @@ public class RetailerController {
 
 
     private void populateRetailerdata(Retailer retailer){
-       retailer.setUserType(UserType.RETAILER.getValue());
-       retailer.setUserRole(UserRole.RETAILER.getValue());
+        retailer.setUserType(retailer.getUserType());
+        retailer.setUserRole(UserRole.RETAILER.getValue());
        retailer.setRetailerStatus(RetailerStatus.ONBOARDED.getValue());
        retailer.setAllowAEPS(Boolean.FALSE);
        retailer.setAllowBBPS(Boolean.FALSE);

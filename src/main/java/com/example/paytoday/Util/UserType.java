@@ -3,7 +3,8 @@ package com.example.paytoday.Util;
 public enum UserType {
 
     RETAILER(1),
-    ADMIN(2);
+    AGENT(2),
+    ADMIN(3);
 
     private int value;
 
