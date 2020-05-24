@@ -11,12 +11,18 @@ import com.example.paytoday.model.User;
 import com.example.paytoday.model.Wallet;
 import com.example.paytoday.security.AES;
 import com.example.paytoday.security.jwt.JwtTokenProvider;
+import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.databind.ObjectMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.multipart.MultipartFile;
 
+import java.io.File;
+import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.Arrays;
 
@@ -76,7 +82,7 @@ public class RetailerController {
                 return responseUtil;
             }
 
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             responseUtil.setStatusCode("500");
             responseUtil.setMessage("User Already registered");
@@ -85,21 +91,33 @@ public class RetailerController {
     }
 
 
+    private static void fileUpload(String email, MultipartFile fileData) throws IOException {
+        File file = new File("D:\\paytoday\\", email);
+        if (!file.exists()) {
+            if (file.mkdir()) {
+                fileData.transferTo(new File(file.getAbsolutePath(), fileData.getName()));
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        } else {
+            fileData.transferTo(new File(file.getAbsolutePath(), fileData.getName()));
+        }
+    }
+
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseUtil login(@RequestBody Retailer retailer) {
         ResponseUtil responseUtil = new ResponseUtil();
-        try{
+        try {
             retailer.setPassword(AES.encryptionUtil(retailer.getPassword()));
             Retailer data = retailerDAO.getUserforLogin(retailer);
-            if(data!=null){
+            if (data != null && data.getState().equals(2)) {
                 responseUtil.setStatusCode("200");
                 responseUtil.setMessage("Login successfully");
                 responseUtil.setAccesToken(jwtTokenProvider.createToken(retailer.getEmail(), Arrays.asList("ADMIN")));
-            }
-            else{
+            } else {
                 responseUtil.setStatusCode("500");
-                responseUtil.setMessage("Invalid Credentails");
+                responseUtil.setMessage("Process on pending...");
             }
             return responseUtil;
         }catch(Exception e){
@@ -110,24 +128,26 @@ public class RetailerController {
         }
     }
 
-    @RequestMapping(value = "/addWallet", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value = "/addWallet", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseUtil addWallet(@RequestBody Wallet wallet) {
+    public ResponseUtil addWallet(@RequestParam String wallet, @RequestParam("file") MultipartFile file) throws JsonProcessingException {
         ResponseUtil responseUtil = new ResponseUtil();
-        try{
-            responseUtil = validateWallet(wallet);
-            Retailer data = retailerDAO.getUserbyEmail(wallet.getUser_id());
-            if(data!=null){
-               wallet.setUser_id(data.getId().toString());
-               Long id = walletDAO.create(wallet);
-               if(id != null){
-                   responseUtil.setStatusCode("200");
-                   responseUtil.setMessage("wallet data saved");
-               }
-               else{
-                   responseUtil.setStatusCode("500");
-                   responseUtil.setMessage("Error in saving wallet data");
-               }
+        ObjectMapper jsonData = new ObjectMapper();
+        Wallet walletObj = jsonData.readValue(wallet, Wallet.class);
+        try {
+            responseUtil = validateWallet(walletObj);
+            Retailer data = retailerDAO.getUserbyEmail(walletObj.getUser_id());
+            if (data != null) {
+                fileUpload(walletObj.getUser_id(), file);
+                walletObj.setUser_id(data.getId().toString());
+                Long id = walletDAO.create(walletObj);
+                if (id != null) {
+                    responseUtil.setStatusCode("200");
+                    responseUtil.setMessage("wallet data saved");
+                } else {
+                    responseUtil.setStatusCode("500");
+                    responseUtil.setMessage("Error in saving wallet data");
+                }
 
             }
             else{

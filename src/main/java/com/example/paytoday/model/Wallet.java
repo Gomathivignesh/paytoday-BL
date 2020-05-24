@@ -11,8 +11,6 @@ import java.math.BigDecimal;
 @Table(name="user_wallet")
 public class Wallet extends BaseEntity implements Serializable {
 
-    @Column(name="total_amount")
-    private BigDecimal totalAmount;
 
     @Column(name="amount")
     private BigDecimal amount;
@@ -25,14 +23,6 @@ public class Wallet extends BaseEntity implements Serializable {
 
     @Column(name="user_id")
     private String user_id;
-
-    public BigDecimal getTotalAmount() {
-        return totalAmount;
-    }
-
-    public void setTotalAmount(BigDecimal totalAmount) {
-        this.totalAmount = totalAmount;
-    }
 
     public BigDecimal getAmount() {
         return amount;
