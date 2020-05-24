@@ -24,7 +24,9 @@ import org.springframework.web.multipart.MultipartFile;
 import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 
 @org.springframework.web.bind.annotation.RestController
 
@@ -90,20 +92,6 @@ public class RetailerController {
         }
     }
 
-
-    private static void fileUpload(String email, MultipartFile fileData) throws IOException {
-        File file = new File("D:\\paytoday\\", email);
-        if (!file.exists()) {
-            if (file.mkdir()) {
-                fileData.transferTo(new File(file.getAbsolutePath(), fileData.getName()));
-            } else {
-                System.out.println("Failed to create directory!");
-            }
-        } else {
-            fileData.transferTo(new File(file.getAbsolutePath(), fileData.getName()));
-        }
-    }
-
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseUtil login(@RequestBody Retailer retailer) {
@@ -120,11 +108,26 @@ public class RetailerController {
                 responseUtil.setMessage("Process on pending...");
             }
             return responseUtil;
-        }catch(Exception e){
+        } catch (Exception e) {
             e.printStackTrace();
             responseUtil.setStatusCode("500");
             responseUtil.setMessage("error in getting response");
             return responseUtil;
+        }
+    }
+
+    private static void fileUpload(String email, MultipartFile fileData) throws IOException {
+        File file = new File("D:\\paytoday\\", email);
+        if (!file.exists()) {
+            if (file.mkdir()) {
+                fileData.transferTo(new File(file.getAbsolutePath(),
+                        new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getName()));
+            } else {
+                System.out.println("Failed to create directory!");
+            }
+        } else {
+            fileData.transferTo(new File(file.getAbsolutePath(),
+                    new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getName()));
         }
     }
 
@@ -164,9 +167,6 @@ public class RetailerController {
             return responseUtil;
 
         }
-
-
-
     }
 
 
