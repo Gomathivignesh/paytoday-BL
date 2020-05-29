@@ -117,9 +117,11 @@ public class RetailerController {
     }
 
     private static String fileUpload(String email, MultipartFile fileData) throws IOException {
-        String loc = "D:\\paytoday\\" + email;
+//        String loc = "D:\\paytoday\\" + email;
+        String loc = "/usr/paytoday" + email;
         String filename = new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getOriginalFilename();
-        File file = new File("D:\\paytoday\\", email);
+        File file = new File(loc);
+
         if (!file.exists()) {
             if (file.mkdir()) {
                 fileData.transferTo(new File(file.getAbsolutePath(), filename));
