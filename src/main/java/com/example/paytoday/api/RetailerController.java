@@ -116,19 +116,23 @@ public class RetailerController {
         }
     }
 
-    private static void fileUpload(String email, MultipartFile fileData) throws IOException {
+    private static String fileUpload(String email, MultipartFile fileData) throws IOException {
+        String loc = "D:\\paytoday\\" + email;
+        String filename = new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getOriginalFilename();
         File file = new File("D:\\paytoday\\", email);
         if (!file.exists()) {
             if (file.mkdir()) {
-                fileData.transferTo(new File(file.getAbsolutePath(),
-                        new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getName()));
+                fileData.transferTo(new File(file.getAbsolutePath(), filename));
+                return loc + filename;
             } else {
                 System.out.println("Failed to create directory!");
             }
         } else {
             fileData.transferTo(new File(file.getAbsolutePath(),
-                    new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getName()));
+                    filename));
+            return loc + filename;
         }
+        return null;
     }
 
     @RequestMapping(value = "/addWallet", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
@@ -141,8 +145,9 @@ public class RetailerController {
             responseUtil = validateWallet(walletObj);
             Retailer data = retailerDAO.getUserbyEmail(walletObj.getUser_id());
             if (data != null) {
-                fileUpload(walletObj.getUser_id(), file);
+                String filename = fileUpload(walletObj.getUser_id(), file);
                 walletObj.setUser_id(data.getId().toString());
+                walletObj.setImgUrl(filename);
                 Long id = walletDAO.create(walletObj);
                 if (id != null) {
                     responseUtil.setStatusCode("200");

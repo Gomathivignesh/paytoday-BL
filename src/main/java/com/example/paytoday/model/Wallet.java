@@ -12,17 +12,22 @@ import java.math.BigDecimal;
 public class Wallet extends BaseEntity implements Serializable {
 
 
+
     @Column(name="amount")
     private BigDecimal amount;
 
-    @Column(name="transaction_type")
+    @Column(name = "transaction_type")
     private String transactionType;
 
-    @Column(name="transfer_type")
+    @Column(name = "transfer_type")
     private Integer transferType;
 
-    @Column(name="user_id")
+    @Column(name = "user_id")
     private String user_id;
+
+    @Column(name = "img_url")
+    private String imgUrl;
+
 
     public BigDecimal getAmount() {
         return amount;
@@ -54,5 +59,13 @@ public class Wallet extends BaseEntity implements Serializable {
 
     public void setUser_id(String user_id) {
         this.user_id = user_id;
+    }
+
+    public String getImgUrl() {
+        return imgUrl;
+    }
+
+    public void setImgUrl(String imgUrl) {
+        this.imgUrl = imgUrl;
     }
 }
