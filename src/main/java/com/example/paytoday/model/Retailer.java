@@ -5,11 +5,9 @@ import com.example.paytoday.Util.RetailerStatus;
 import com.example.paytoday.Util.UserRole;
 import com.example.paytoday.Util.UserType;
 
-import javax.persistence.Column;
-import javax.persistence.Entity;
-import javax.persistence.Table;
-import javax.persistence.Transient;
+import javax.persistence.*;
 import java.io.Serializable;
+import java.util.Set;
 
 @Entity
 @Table(name="retailer")
@@ -82,6 +80,7 @@ public class Retailer extends BaseEntity implements Serializable {
 
     @Transient
     private String agentEmail;
+
 
     public String getAgentEmail() {
         return agentEmail;

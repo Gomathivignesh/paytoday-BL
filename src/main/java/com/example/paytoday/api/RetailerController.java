@@ -1,9 +1,6 @@
 package com.example.paytoday.api;
 
-import com.example.paytoday.Util.ResponseUtil;
-import com.example.paytoday.Util.RetailerStatus;
-import com.example.paytoday.Util.UserRole;
-import com.example.paytoday.Util.UserType;
+import com.example.paytoday.Util.*;
 import com.example.paytoday.dao.RetailerDAO;
 import com.example.paytoday.dao.WalletDAO;
 import com.example.paytoday.model.Retailer;
@@ -54,8 +51,7 @@ public class RetailerController {
             if(responseUtil.getStatusCode().equals("500"))
                 return responseUtil;
             else{
-
-                String password = AES.encryptionUtil(retailer.getPassword());
+                String password = AES.encryptionUtil(retailer.getPassword().concat(retailer.getEmail()));
                 if(!password.isEmpty()&& password != null){
                     retailer.setPassword(password);
                     populateRetailerdata(retailer);
@@ -63,7 +59,7 @@ public class RetailerController {
                         Retailer agentData = retailerDAO.getUserbyEmail(retailer.getAgentEmail());
                         retailer.setAgentId(agentData.getId());
                     } else
-                        retailer.setAgentId(0L);
+                        retailer.setAgentId(-1L);
                 }
 
                 else {
@@ -97,7 +93,7 @@ public class RetailerController {
     public ResponseUtil login(@RequestBody Retailer retailer) {
         ResponseUtil responseUtil = new ResponseUtil();
         try {
-            retailer.setPassword(AES.encryptionUtil(retailer.getPassword()));
+            retailer.setPassword(AES.encryptionUtil(retailer.getPassword().concat(retailer.getEmail())));
             Retailer data = retailerDAO.getUserforLogin(retailer);
             if (data != null && data.getState().equals(2)) {
                 responseUtil.setStatusCode("200");
@@ -117,8 +113,8 @@ public class RetailerController {
     }
 
     private static String fileUpload(String email, MultipartFile fileData) throws IOException {
-//        String loc = "D:\\paytoday\\" + email;
-        String loc = "/usr/paytoday" + email;
+       String loc = "D:\\paytoday\\" + email + "\\";
+       // String loc = "/usr/paytoday" + email;
         String filename = new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getOriginalFilename();
         File file = new File(loc);
 
@@ -150,6 +146,8 @@ public class RetailerController {
                 String filename = fileUpload(walletObj.getUser_id(), file);
                 walletObj.setUser_id(data.getId().toString());
                 walletObj.setImgUrl(filename);
+                walletObj.setStatus(WalletStatus.INITIATED.getValue());
+                walletObj.setReference("PAY".concat(data.getEmail().substring(0,4)).concat(new SimpleDateFormat("MMDDHHmm").format(new Date())));
                 Long id = walletDAO.create(walletObj);
                 if (id != null) {
                     responseUtil.setStatusCode("200");
@@ -219,7 +217,7 @@ public class RetailerController {
 
     private void populateRetailerdata(Retailer retailer){
         retailer.setUserType(retailer.getUserType());
-        retailer.setUserRole(UserRole.RETAILER.getValue());
+        retailer.setUserRole(UserRole.USER.getValue());
        retailer.setRetailerStatus(RetailerStatus.ONBOARDED.getValue());
        retailer.setAllowAEPS(Boolean.FALSE);
        retailer.setAllowBBPS(Boolean.FALSE);

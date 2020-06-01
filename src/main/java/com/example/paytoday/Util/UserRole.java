@@ -2,7 +2,7 @@ package com.example.paytoday.Util;
 
 public enum UserRole {
 
-    RETAILER(1),
+    USER(1),
     ADMIN(2);
 
     private int value;

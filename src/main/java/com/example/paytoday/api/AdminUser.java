@@ -17,9 +17,7 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
+import java.util.*;
 
 @org.springframework.web.bind.annotation.RestController
 
@@ -107,7 +105,6 @@ public class AdminUser {
     public List<Retailer> getOnboardedUsers(){
         List<Retailer> data = new ArrayList<>();
         try{
-
             data = retailerDAO.getRetailerByStatus(RetailerStatus.ONBOARDED);
             return data;
 
@@ -117,6 +114,24 @@ public class AdminUser {
             return data;
         }
     }
+
+
+    @RequestMapping(value ="/getWalletRequest", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> getPendingWalletReq(){
+        Map<String, String> response = new HashMap<>();
+        try{
+            response = retailerDAO.getWalletRequest();
+            return response;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return response;
+        }
+    }
+
+
+
 
     @RequestMapping(value ="/updateUser", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
