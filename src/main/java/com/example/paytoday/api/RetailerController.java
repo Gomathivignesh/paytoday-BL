@@ -189,7 +189,6 @@ public class RetailerController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public Map<String, String> getPendingWalletReq(@RequestParam String approverEmail){
 
-
         Map<String, String> response = new HashMap<>();
         try{
             response = retailerDAO.getWalletRequest(retailerDAO.getUserbyEmail(approverEmail).getId().toString());
@@ -198,6 +197,45 @@ public class RetailerController {
         }catch (Exception e){
             e.printStackTrace();
             return response;
+        }
+    }
+
+    @RequestMapping(value ="/approveWalletReq", method = RequestMethod.PUT,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseUtil updateUserByEmail(@RequestParam String walletRef){
+        ResponseUtil responseUtil = new ResponseUtil();
+        try{
+
+            Wallet wallet = walletDAO.getById(new Wallet(), Long.parseLong(walletRef.split("-")[1]));
+            wallet.setStatus(WalletStatus.APPROVED.getValue());
+            walletDAO.update(wallet);
+
+            Retailer retailer = retailerDAO.getById(new Retailer(), Long.parseLong(wallet.getUserId()));
+
+
+            if(wallet == null){
+                responseUtil.setStatusCode("200");
+                responseUtil.setMessage("No Req found!");
+                return responseUtil;
+            }else{
+                if(retailer.getRetailerStatus() == RetailerStatus.ONBOARDED.getValue()) {
+                    retailer.setRetailerStatus(RetailerStatus.ACTIVE.getValue());
+                    retailer.setAllowRecharge(Boolean.TRUE);
+                    retailer.setAllowDMT(Boolean.TRUE);
+                    retailer.setAllowBBPS(Boolean.TRUE);
+                    retailer.setAllowAEPS(Boolean.TRUE);
+                    retailerDAO.update(retailer);
+                }
+
+                responseUtil.setStatusCode("200");
+                responseUtil.setMessage("Wallet req updated!");
+                return responseUtil;
+            }
+        }catch(Exception e){
+            e.printStackTrace();
+            responseUtil.setStatusCode("500");
+            responseUtil.setMessage(e.getMessage());
+            return responseUtil;
         }
     }
 

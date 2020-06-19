@@ -4,19 +4,19 @@ package com.example.paytoday.api;
 import com.example.paytoday.Util.ResponseUtil;
 import com.example.paytoday.Util.RetailerStatus;
 import com.example.paytoday.Util.UserType;
+import com.example.paytoday.Util.WalletStatus;
 import com.example.paytoday.dao.RetailerDAO;
 import com.example.paytoday.dao.UserDAO;
+import com.example.paytoday.dao.WalletDAO;
 import com.example.paytoday.model.Retailer;
 import com.example.paytoday.model.User;
+import com.example.paytoday.model.Wallet;
 import com.example.paytoday.security.AES;
 import com.example.paytoday.security.jwt.JwtTokenProvider;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.MediaType;
 import org.springframework.security.access.prepost.PreAuthorize;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestMethod;
+import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
@@ -34,6 +34,9 @@ public class AdminUser {
 
     @Autowired
     private RetailerDAO retailerDAO;
+
+    @Autowired
+    private WalletDAO walletDAO;
 
 
     @RequestMapping(value = "/login", method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
@@ -132,34 +135,41 @@ public class AdminUser {
     }
 
 
-
-
-    @RequestMapping(value ="/updateUser", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value ="/approveWalletReq", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseUtil updateUserByEmail(@RequestBody Retailer data){
+    public ResponseUtil updateUserByEmail(@RequestParam String walletRef){
         ResponseUtil responseUtil = new ResponseUtil();
         try{
-            Retailer retailer = retailerDAO.getUserbyEmail(data.getEmail());
-            if(retailer == null){
-                responseUtil.setStatusCode("500");
-                responseUtil.setMessage("user data is not found!");
+
+            Wallet wallet = walletDAO.getById(new Wallet(), Long.parseLong(walletRef.split("-")[1]));
+            wallet.setStatus(WalletStatus.APPROVED.getValue());
+            walletDAO.update(wallet);
+
+            Retailer retailer = retailerDAO.getById(new Retailer(), Long.parseLong(wallet.getUserId()));
+
+
+            if(wallet == null){
+                responseUtil.setStatusCode("200");
+                responseUtil.setMessage("No Req found!");
                 return responseUtil;
             }else{
-                retailer.setRetailerStatus(RetailerStatus.ACTIVE.getValue());
-                retailer.setAllowRecharge(Boolean.TRUE);
-                retailer.setAllowDMT(Boolean.TRUE);
-                retailer.setAllowBBPS(Boolean.TRUE);
-                retailer.setAllowAEPS(Boolean.TRUE);
-                retailerDAO.update(retailer);
+                if(retailer.getRetailerStatus() == RetailerStatus.ONBOARDED.getValue()) {
+                    retailer.setRetailerStatus(RetailerStatus.ACTIVE.getValue());
+                    retailer.setAllowRecharge(Boolean.TRUE);
+                    retailer.setAllowDMT(Boolean.TRUE);
+                    retailer.setAllowBBPS(Boolean.TRUE);
+                    retailer.setAllowAEPS(Boolean.TRUE);
+                    retailerDAO.update(retailer);
+                }
 
                 responseUtil.setStatusCode("200");
-                responseUtil.setMessage("User data Updated!");
+                responseUtil.setMessage("Wallet req updated!");
                 return responseUtil;
             }
         }catch(Exception e){
             e.printStackTrace();
             responseUtil.setStatusCode("500");
-            responseUtil.setMessage("User Already registered");
+            responseUtil.setMessage(e.getMessage());
             return responseUtil;
         }
     }

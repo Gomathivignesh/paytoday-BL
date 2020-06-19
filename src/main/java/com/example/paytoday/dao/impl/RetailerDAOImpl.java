@@ -69,7 +69,7 @@ public class RetailerDAOImpl extends BaseEntityDAOImpl<Retailer> implements Reta
             responseMap.put("amount", data[3].toString());
             responseMap.put("TransferType", data[4].toString());
             responseMap.put("imageURL", data[5].toString());
-            responseMap.put("ref", data[6].toString());
+            responseMap.put("ref", data[6].toString()+ '-' +data[7].toString());
 
         });
 
