@@ -25,4 +25,13 @@ public enum UserType {
         throw new IllegalArgumentException("data not found.");
     }
 
+    public static String getName(int i){
+        for (UserType data : UserType.values()) {
+            if (data.getValue() == i )
+                return data.name();
+        }
+        throw new IllegalArgumentException("data not found.");
+
+    }
+
 }

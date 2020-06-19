@@ -11,13 +11,15 @@ import java.util.Map;
 
 public interface RetailerDAO extends BaseDAO<Retailer> {
 
-    public List<Retailer> getRetailerByStatus(RetailerStatus status);
+     List<Retailer> getRetailerByStatus(RetailerStatus status);
 
     Retailer getUserbyEmail(String email);
 
     Retailer getUserforLogin(Retailer retailer);
 
-    Map<String,String> getWalletRequest(String approver);
+    List<Map<String,String>> getWalletRequest(String approver);
+
+    List<Retailer> getRetailerByDistributor(Long distributorId);
 
 
 

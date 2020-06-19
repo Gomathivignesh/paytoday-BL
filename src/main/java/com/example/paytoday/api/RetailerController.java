@@ -3,6 +3,7 @@ package com.example.paytoday.api;
 import com.example.paytoday.Util.*;
 import com.example.paytoday.dao.RetailerDAO;
 import com.example.paytoday.dao.WalletDAO;
+import com.example.paytoday.data.UserData;
 import com.example.paytoday.model.Retailer;
 import com.example.paytoday.model.User;
 import com.example.paytoday.model.Wallet;
@@ -22,10 +23,7 @@ import java.io.File;
 import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
-import java.util.Arrays;
-import java.util.Date;
-import java.util.HashMap;
-import java.util.Map;
+import java.util.*;
 
 @org.springframework.web.bind.annotation.RestController
 
@@ -101,14 +99,8 @@ public class RetailerController {
                 responseUtil.setStatusCode("200");
                 responseUtil.setMessage("Login successfully");
                 responseUtil.setAccesToken(jwtTokenProvider.createToken(retailer.getEmail(), Arrays.asList("ADMIN")));
-                for(RetailerStatus retailerStatus : RetailerStatus.values())
-                    if(retailerStatus.getValue() == data.getRetailerStatus())
-                       responseUtil.setUserStatus(retailerStatus.name());
-                for(UserType userType: UserType.values())
-                    if(userType.getValue() == data.getUserType())
-                        responseUtil.setUserType(userType.name());
-
-
+                responseUtil.setUserStatus(RetailerStatus.getName(data.getRetailerStatus()));
+                responseUtil.setUserType(UserType.getName(data.getUserType()));
             } else {
                 responseUtil.setStatusCode("500");
                 responseUtil.setMessage("Process on pending...");
@@ -185,11 +177,57 @@ public class RetailerController {
         }
     }
 
+    @RequestMapping(value ="/getUserInfo", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public UserData getUserInfo(@RequestParam String email){
+        UserData userData = new UserData();
+
+
+        try{
+
+            Retailer retailer = retailerDAO.getUserbyEmail(email);
+            userData.setUsername(retailer.getName());
+            userData.setWalletBalance(walletDAO.getWalletAmount(retailer.getId())!=null? walletDAO.getWalletAmount(retailer.getId()): BigDecimal.ZERO);
+            userData.setUserStatus(RetailerStatus.getName(retailer.getRetailerStatus()));
+            userData.setUserType(UserType.getName(retailer.getUserType()));
+
+            if(retailer.getUserType() == 2){
+                List<UserData> subUserData = new ArrayList<>();
+                List<Retailer> subDataResponse = retailerDAO.getRetailerByDistributor(retailer.getId());
+
+                subDataResponse.forEach(data ->{
+                    UserData subData = new UserData();
+                    subData.setUsername(data.getName());
+                    subData.setWalletBalance(walletDAO.getWalletAmount(data.getId())!=null? walletDAO.getWalletAmount(data.getId()) : BigDecimal.ZERO );
+                    subData.setUserStatus(RetailerStatus.getName(data.getRetailerStatus()));
+                    subData.setUserType(UserType.getName(data.getUserType()));
+                    subUserData.add(subData);
+                });
+                userData.setRetailerData(subUserData);
+
+
+            }
+
+
+
+            return userData;
+
+
+
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return null;
+        }
+    }
+
+
+
     @RequestMapping(value ="/getWalletRequest", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, String> getPendingWalletReq(@RequestParam String approverEmail){
+    public List<Map<String, String>> getPendingWalletReq(@RequestParam String approverEmail){
 
-        Map<String, String> response = new HashMap<>();
+        List<Map<String, String>> response = new ArrayList<>();
         try{
             response = retailerDAO.getWalletRequest(retailerDAO.getUserbyEmail(approverEmail).getId().toString());
             return response;

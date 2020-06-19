@@ -18,6 +18,15 @@ public enum RetailerStatus {
         this.value = i;
     }
 
+    public static String getName(int id) {
+        for (RetailerStatus retailerStatus : RetailerStatus.values()) {
+            if (retailerStatus.getValue() == id)
+                return retailerStatus.name();
+        }
+        throw new IllegalArgumentException("data not found.");
+    }
+
+
 
 }
 

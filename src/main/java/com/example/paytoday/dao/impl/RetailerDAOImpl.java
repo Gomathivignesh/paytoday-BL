@@ -39,6 +39,19 @@ public class RetailerDAOImpl extends BaseEntityDAOImpl<Retailer> implements Reta
 
     }
 
+    public List<Retailer> getRetailerByDistributor(Long distributorId){
+        return getSession().createCriteria(Retailer.class)
+                .add(Restrictions.eq("agentId",distributorId))
+                .setProjection(Projections.projectionList()
+                        .add(Projections.property("id"), "id")
+                        .add(Projections.property("name"), "name")
+                        .add(Projections.property("retailerStatus"), "retailerStatus")
+                        .add(Projections.property("userType"), "userType"))
+                .setResultTransformer(Transformers.aliasToBean(Retailer.class))
+                .list();
+
+    }
+
     @Override
     public Retailer getUserbyEmail(String email) {
         return (Retailer) getSession().createCriteria(Retailer.class)
@@ -55,21 +68,23 @@ public class RetailerDAOImpl extends BaseEntityDAOImpl<Retailer> implements Reta
     }
 
     @Override
-    public Map<String, String> getWalletRequest(String approver) {
-        Map<String,String> responseMap = new HashMap<>();
+    public List<Map<String, String>> getWalletRequest(String approver) {
+        List<Map<String,String>> responseMap = new ArrayList<>();
 
         String sql= approver.equals(UserType.ADMIN.name()) ? QueryUtil.WALLET_QUERY + " and w.approver_id = -1" : QueryUtil.WALLET_QUERY + " and w.approver_id = " +approver;
 
         List<Object[]> response =  getSession().createSQLQuery(sql).list();
 
         response.forEach(data-> {
-            responseMap.put("email", data[0].toString());
-            responseMap.put("userStatus", data[1].toString());
-            responseMap.put("userType", data[2].toString());
-            responseMap.put("amount", data[3].toString());
-            responseMap.put("TransferType", data[4].toString());
-            responseMap.put("imageURL", data[5].toString());
-            responseMap.put("ref", data[6].toString()+ '-' +data[7].toString());
+            Map<String,String> dataMap = new HashMap<>();
+            dataMap.put("email", data[0].toString());
+            dataMap.put("userStatus", data[1].toString());
+            dataMap.put("userType", data[2].toString());
+            dataMap.put("amount", data[3].toString());
+            dataMap.put("TransferType", data[4].toString());
+            dataMap.put("imageURL", data[5].toString());
+            dataMap.put("ref", data[6].toString()+ '-' +data[7].toString());
+            responseMap.add(dataMap);
 
         });
 

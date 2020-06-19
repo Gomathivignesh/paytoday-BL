@@ -122,8 +122,8 @@ public class AdminUser {
 
     @RequestMapping(value ="/getWalletRequest", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public Map<String, String> getPendingWalletReq(){
-        Map<String, String> response = new HashMap<>();
+    public List<Map<String, String>> getPendingWalletReq(){
+        List<Map<String, String>> response = new ArrayList<>();
         try{
             response = retailerDAO.getWalletRequest(UserType.ADMIN.name());
             return response;
