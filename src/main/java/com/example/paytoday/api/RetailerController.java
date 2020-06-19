@@ -24,6 +24,8 @@ import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.Arrays;
 import java.util.Date;
+import java.util.HashMap;
+import java.util.Map;
 
 @org.springframework.web.bind.annotation.RestController
 
@@ -95,10 +97,18 @@ public class RetailerController {
         try {
             retailer.setPassword(AES.encryptionUtil(retailer.getPassword().concat(retailer.getEmail())));
             Retailer data = retailerDAO.getUserforLogin(retailer);
-            if (data != null && data.getState().equals(2)) {
+            if (data != null) {
                 responseUtil.setStatusCode("200");
                 responseUtil.setMessage("Login successfully");
                 responseUtil.setAccesToken(jwtTokenProvider.createToken(retailer.getEmail(), Arrays.asList("ADMIN")));
+                for(RetailerStatus retailerStatus : RetailerStatus.values())
+                    if(retailerStatus.getValue() == data.getRetailerStatus())
+                       responseUtil.setUserStatus(retailerStatus.name());
+                for(UserType userType: UserType.values())
+                    if(userType.getValue() == data.getUserType())
+                        responseUtil.setUserType(userType.name());
+
+
             } else {
                 responseUtil.setStatusCode("500");
                 responseUtil.setMessage("Process on pending...");
@@ -114,7 +124,7 @@ public class RetailerController {
 
     private static String fileUpload(String email, MultipartFile fileData) throws IOException {
        String loc = "D:\\paytoday\\" + email + "\\";
-       // String loc = "/usr/paytoday" + email;
+        //String loc = "/Users/sasikumar/Documents/projects/gomathi/Desktop/paytoday" + email;
         String filename = new SimpleDateFormat("YYYYMMDDHHmmSS").format(new Date()) + fileData.getOriginalFilename();
         File file = new File(loc);
 
@@ -141,13 +151,14 @@ public class RetailerController {
         Wallet walletObj = jsonData.readValue(wallet, Wallet.class);
         try {
             responseUtil = validateWallet(walletObj);
-            Retailer data = retailerDAO.getUserbyEmail(walletObj.getUser_id());
+            Retailer data = retailerDAO.getUserbyEmail(walletObj.getUserId());
             if (data != null) {
-                String filename = fileUpload(walletObj.getUser_id(), file);
-                walletObj.setUser_id(data.getId().toString());
+                String filename = fileUpload(walletObj.getUserId(), file);
+                walletObj.setUserId(data.getId().toString());
                 walletObj.setImgUrl(filename);
                 walletObj.setStatus(WalletStatus.INITIATED.getValue());
                 walletObj.setReference("PAY".concat(data.getEmail().substring(0,4)).concat(new SimpleDateFormat("MMDDHHmm").format(new Date())));
+                walletObj.setApproverId(data.getAgentId().toString());
                 Long id = walletDAO.create(walletObj);
                 if (id != null) {
                     responseUtil.setStatusCode("200");
@@ -171,6 +182,22 @@ public class RetailerController {
             responseUtil.setMessage("error in getting response");
             return responseUtil;
 
+        }
+    }
+
+    @RequestMapping(value ="/getWalletRequest", method = RequestMethod.GET,
+            produces = MediaType.APPLICATION_JSON_VALUE)
+    public Map<String, String> getPendingWalletReq(@RequestParam String approverEmail){
+
+
+        Map<String, String> response = new HashMap<>();
+        try{
+            response = retailerDAO.getWalletRequest(retailerDAO.getUserbyEmail(approverEmail).getId().toString());
+            return response;
+
+        }catch (Exception e){
+            e.printStackTrace();
+            return response;
         }
     }
 
@@ -203,7 +230,7 @@ public class RetailerController {
             responseUtil.setMessage("Amount is required");
         else if(wallet.getTransactionType().equals(null) )
             responseUtil.setMessage("transfer_type is required");
-        else if(wallet.getUser_id() == null || wallet.getUser_id().isEmpty())
+        else if(wallet.getUserId() == null || wallet.getUserId().isEmpty())
             responseUtil.setMessage("User_id is required");
         else if(wallet.getTransactionType()==null || wallet.getTransactionType().isEmpty())
             responseUtil.setMessage("Option is required");

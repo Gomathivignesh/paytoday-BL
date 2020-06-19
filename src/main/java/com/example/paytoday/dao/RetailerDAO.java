@@ -1,6 +1,7 @@
 package com.example.paytoday.dao;
 
 import com.example.paytoday.Util.RetailerStatus;
+import com.example.paytoday.Util.UserType;
 import com.example.paytoday.model.Retailer;
 import com.example.paytoday.model.Wallet;
 
@@ -16,7 +17,7 @@ public interface RetailerDAO extends BaseDAO<Retailer> {
 
     Retailer getUserforLogin(Retailer retailer);
 
-    Map<String,String> getWalletRequest();
+    Map<String,String> getWalletRequest(String approver);
 
 
 

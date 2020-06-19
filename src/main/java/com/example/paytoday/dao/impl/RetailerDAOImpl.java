@@ -1,5 +1,6 @@
 package com.example.paytoday.dao.impl;
 
+import com.example.paytoday.Util.QueryUtil;
 import com.example.paytoday.Util.RetailerStatus;
 import com.example.paytoday.Util.UserType;
 import com.example.paytoday.dao.RetailerDAO;
@@ -54,20 +55,12 @@ public class RetailerDAOImpl extends BaseEntityDAOImpl<Retailer> implements Reta
     }
 
     @Override
-    public Map<String, String> getWalletRequest() {
+    public Map<String, String> getWalletRequest(String approver) {
         Map<String,String> responseMap = new HashMap<>();
 
+        String sql= approver.equals(UserType.ADMIN.name()) ? QueryUtil.WALLET_QUERY + " and w.approver_id = -1" : QueryUtil.WALLET_QUERY + " and w.approver_id = " +approver;
 
-        List<Object[]> response =  getSession().createSQLQuery("SELECT r.email, \n" +
-                "       r.status, \n" +
-                "       r.user_type, \n" +
-                "       w.amount, \n" +
-                "       w.transfer_type, \n" +
-                "       w.img_url, w.reference \n" +
-                "FROM   retailer r \n" +
-                "JOIN   wallet w \n" +
-                "ON     r.id=w.user_id \n" +
-                "AND    w.status = 1").list();
+        List<Object[]> response =  getSession().createSQLQuery(sql).list();
 
         response.forEach(data-> {
             responseMap.put("email", data[0].toString());

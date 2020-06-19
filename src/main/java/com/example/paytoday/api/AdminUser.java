@@ -3,6 +3,7 @@ package com.example.paytoday.api;
 
 import com.example.paytoday.Util.ResponseUtil;
 import com.example.paytoday.Util.RetailerStatus;
+import com.example.paytoday.Util.UserType;
 import com.example.paytoday.dao.RetailerDAO;
 import com.example.paytoday.dao.UserDAO;
 import com.example.paytoday.model.Retailer;
@@ -121,7 +122,7 @@ public class AdminUser {
     public Map<String, String> getPendingWalletReq(){
         Map<String, String> response = new HashMap<>();
         try{
-            response = retailerDAO.getWalletRequest();
+            response = retailerDAO.getWalletRequest(UserType.ADMIN.name());
             return response;
 
         }catch (Exception e){
@@ -165,10 +166,7 @@ public class AdminUser {
 
 
 
-    @GetMapping(path = "/test")
-    public String getDetails(){
-        return "test";
-    }
+
 
 
 

@@ -6,6 +6,25 @@ public class ResponseUtil {
     private String statusCode;
     private String message;
     private String accesToken;
+    private String userStatus;
+    private String UserType;
+
+
+    public String getUserType() {
+        return UserType;
+    }
+
+    public void setUserType(String userType) {
+        UserType = userType;
+    }
+
+    public String getUserStatus() {
+        return userStatus;
+    }
+
+    public void setUserStatus(String userStatus) {
+        this.userStatus = userStatus;
+    }
 
     public String getStatusCode() {
         return statusCode;

@@ -24,7 +24,7 @@ public class Wallet extends BaseEntity implements Serializable {
     private Integer transferType;
 
     @Column(name = "user_id")
-    private String user_id;
+    private String userId;
 
     @Column(name = "img_url")
     private String imgUrl;
@@ -34,6 +34,17 @@ public class Wallet extends BaseEntity implements Serializable {
 
     @Column(name="reference")
     private String reference;
+
+    @Column(name="approver_id")
+    private String approverId;
+
+    public String getApproverId() {
+        return approverId;
+    }
+
+    public void setApproverId(String approverId) {
+        this.approverId = approverId;
+    }
 
     public String getReference() {
         return reference;
@@ -75,12 +86,12 @@ public class Wallet extends BaseEntity implements Serializable {
         this.transferType = transferType;
     }
 
-    public String getUser_id() {
-        return user_id;
+    public String getUserId() {
+        return userId;
     }
 
-    public void setUser_id(String user_id) {
-        this.user_id = user_id;
+    public void setUserId(String userId) {
+        this.userId = userId;
     }
 
     public String getImgUrl() {
