@@ -181,8 +181,6 @@ public class RetailerController {
             produces = MediaType.APPLICATION_JSON_VALUE)
     public UserData getUserInfo(@RequestParam String email){
         UserData userData = new UserData();
-
-
         try{
 
             Retailer retailer = retailerDAO.getUserbyEmail(email);
@@ -207,13 +205,7 @@ public class RetailerController {
 
 
             }
-
-
-
             return userData;
-
-
-
 
         }catch (Exception e){
             e.printStackTrace();
