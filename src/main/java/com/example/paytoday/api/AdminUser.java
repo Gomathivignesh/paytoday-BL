@@ -135,7 +135,7 @@ public class AdminUser {
     }
 
 
-    @RequestMapping(value ="/approveWalletReq", method = RequestMethod.PUT, consumes = MediaType.APPLICATION_JSON_VALUE,
+    @RequestMapping(value ="/approveWalletReq", method = RequestMethod.PUT,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseUtil updateUserByEmail(@RequestParam String walletRef){
         ResponseUtil responseUtil = new ResponseUtil();
