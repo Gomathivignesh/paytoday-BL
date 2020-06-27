@@ -50,6 +50,8 @@ public class AdminUser {
                 responseUtil.setStatusCode("200");
                 responseUtil.setMessage("Login successfully");
                 responseUtil.setAccesToken(jwtTokenProvider.createToken(user.getEmail(), Arrays.asList("ADMIN")));
+                responseUtil.setUserName(data.getName());
+                responseUtil.setUserEmail(data.getEmail());
              }
             else{
                 responseUtil.setStatusCode("500");

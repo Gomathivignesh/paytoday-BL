@@ -18,10 +18,10 @@ public class Wallet extends BaseEntity implements Serializable {
     private BigDecimal amount;
 
     @Column(name = "transaction_type")
-    private String transactionType;
+    private Integer transactionType;
 
     @Column(name = "transfer_type")
-    private Integer transferType;
+    private String transferType;
 
     @Column(name = "user_id")
     private String userId;
@@ -70,19 +70,19 @@ public class Wallet extends BaseEntity implements Serializable {
         this.amount = amount;
     }
 
-    public String getTransactionType() {
+    public Integer getTransactionType() {
         return transactionType;
     }
 
-    public void setTransactionType(String transactionType) {
+    public void setTransactionType(Integer transactionType) {
         this.transactionType = transactionType;
     }
 
-    public Integer getTransferType() {
+    public String getTransferType() {
         return transferType;
     }
 
-    public void setTransferType(Integer transferType) {
+    public void setTransferType(String transferType) {
         this.transferType = transferType;
     }
 

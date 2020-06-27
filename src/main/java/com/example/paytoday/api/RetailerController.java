@@ -98,12 +98,14 @@ public class RetailerController {
             if (data != null) {
                 responseUtil.setStatusCode("200");
                 responseUtil.setMessage("Login successfully");
-                responseUtil.setAccesToken(jwtTokenProvider.createToken(retailer.getEmail(), Arrays.asList("ADMIN")));
+                responseUtil.setAccesToken(jwtTokenProvider.createToken(retailer.getEmail(), Arrays.asList(UserType.getName(data.getUserType()))));
                 responseUtil.setUserStatus(RetailerStatus.getName(data.getRetailerStatus()));
                 responseUtil.setUserType(UserType.getName(data.getUserType()));
-            } else {
+                responseUtil.setUserEmail(data.getEmail());
+                responseUtil.setUserName(data.getName());
+            }else{
                 responseUtil.setStatusCode("500");
-                responseUtil.setMessage("Process on pending...");
+                responseUtil.setMessage("User not found");
             }
             return responseUtil;
         } catch (Exception e) {
@@ -138,6 +140,7 @@ public class RetailerController {
     @RequestMapping(value = "/addWallet", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseUtil addWallet(@RequestParam String wallet, @RequestParam("file") MultipartFile file) throws JsonProcessingException {
+        System.out.println("wallet req: "+ wallet);
         ResponseUtil responseUtil = new ResponseUtil();
         ObjectMapper jsonData = new ObjectMapper();
         Wallet walletObj = jsonData.readValue(wallet, Wallet.class);
@@ -300,7 +303,7 @@ public class RetailerController {
             responseUtil.setMessage("transfer_type is required");
         else if(wallet.getUserId() == null || wallet.getUserId().isEmpty())
             responseUtil.setMessage("User_id is required");
-        else if(wallet.getTransactionType()==null || wallet.getTransactionType().isEmpty())
+        else if(wallet.getTransactionType()==null)
             responseUtil.setMessage("Option is required");
         else{
             responseUtil.setStatusCode("200");
