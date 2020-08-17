@@ -20,8 +20,8 @@ public class WalletDAOImpl extends BaseEntityDAOImpl<Wallet> implements WalletDA
 
         return (BigDecimal) getSession().createCriteria(Wallet.class)
                 .add(Restrictions.eq("userId", userId.toString()))
-                .setProjection(Projections.projectionList()
-                        .add(Projections.property("amount")))
+                .add(Restrictions.eq("status", 2))
+                .setProjection(Projections.sum("amount"))
                 .uniqueResult();
     }
 }

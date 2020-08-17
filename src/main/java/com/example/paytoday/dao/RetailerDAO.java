@@ -11,7 +11,7 @@ import java.util.Map;
 
 public interface RetailerDAO extends BaseDAO<Retailer> {
 
-     List<Retailer> getRetailerByStatus(RetailerStatus status);
+    List<Retailer> getRetailerByStatus(RetailerStatus status);
 
     Retailer getUserbyEmail(String email);
 

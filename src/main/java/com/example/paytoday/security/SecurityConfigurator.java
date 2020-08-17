@@ -45,6 +45,7 @@ public class SecurityConfigurator extends WebSecurityConfigurerAdapter {
                 .csrf().disable()
                 .authorizeRequests()
                 .antMatchers("/adminUser/**").permitAll()
+                .antMatchers("/sharedUtils/**").permitAll()
                 .antMatchers("/retailer/login","/retailer/signup").permitAll()
                 .antMatchers("/api/**").authenticated()
                 .antMatchers("/retailer/**").authenticated()
