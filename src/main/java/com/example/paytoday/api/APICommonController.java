@@ -13,10 +13,8 @@ import org.springframework.web.client.RestTemplate;
 import java.util.Arrays;
 import java.util.List;
 
-@org.springframework.web.bind.annotation.RestController
 
-
-
+@RestController
 @RequestMapping("/sharedUtils")
 public class APICommonController {
 

@@ -20,9 +20,7 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.*;
 
-@org.springframework.web.bind.annotation.RestController
-
-
+@RestController
 @RequestMapping("/adminUser")
 public class AdminUser {
 
