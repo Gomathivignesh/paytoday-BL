@@ -6,12 +6,12 @@ import com.example.paytoday.dao.AepsDAO;
 import com.example.paytoday.data.AEPSData;
 import com.example.paytoday.model.AepsInfo;
 import com.google.gson.Gson;
+import com.google.gson.JsonArray;
+import org.json.JSONArray;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpHeaders;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.MediaType;
+import org.springframework.http.*;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
@@ -41,58 +41,86 @@ public class AEPSController {
     @Value("${aeps.checkTransfer}")
     private String checkTransferAPI;
 
+    @Value("${aeps.payment.url}")
+    private String aepsPaymentUrl;
+
+
+
 
 
     @RequestMapping(value = "/registerAEPS" , method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseUtil registerAepsuser(@RequestBody AEPSData data) {
+    public ResponseEntity registerAepsuser(@RequestBody AEPSData data) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
-
-        Object res = restTemplate.exchange(registrationAPI, HttpMethod.POST, entity, Object.class).getBody();
-        System.out.println(new Gson().toJson(res));
-        //TODO
-        if(true){
-            AepsInfo aepsInfo = new AepsInfo();
-            aepsInfo.setAepsId("BC568360909");
-            aepsInfo.setStatus("Pending");
-            aepsDAO.create(aepsInfo);
+            Object res = restTemplate.exchange(registrationAPI, HttpMethod.POST, entity, Object.class).getBody();
+            JSONArray resData = new JSONArray(new Gson().toJson(res));
+            System.out.println(new Gson().toJson(resData.getJSONObject(0)));
+            if (!resData.getJSONObject(0).isNull("StatusCode") && resData.getJSONObject(0).get("StatusCode").equals("999")  ) {
+                return ResponseEntity.ok(new ResponseUtil(200, resData.getJSONObject(0).get("Message").toString()));
+            } else if(!resData.getJSONObject(0).isNull("Statuscode") && resData.getJSONObject(0).get("Statuscode").equals("000")) {
+                AepsInfo aepsInfo = new AepsInfo();
+                aepsInfo.setAepsId(resData.getJSONObject(0).get("bc_id").toString());
+                aepsInfo.setStatus("Pending");
+                aepsDAO.create(aepsInfo);
+                return ResponseEntity.ok(new ResponseUtil(200, "user Registerd"));
+            }
+        }catch(Exception e){
+            e.printStackTrace();
         }
 
-        return new ResponseUtil();
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
     }
 
     @RequestMapping(value = "/validateAEPS" , method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseUtil validateAeps(@RequestBody AEPSData data) {
+    public ResponseEntity validateAeps(@RequestBody AEPSData data) {
+        try {
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
 
-        Object res = restTemplate.exchange(validateAPI, HttpMethod.POST, entity, Object.class).getBody();
-        System.out.println(new Gson().toJson(res));
+            Object res = restTemplate.exchange(validateAPI, HttpMethod.POST, entity, Object.class).getBody();
+            JSONArray resData = new JSONArray(new Gson().toJson(res));
 
-        return new ResponseUtil();
-
+            if (resData.length() > 0)
+                return ResponseEntity.ok(new ResponseUtil(200, "User status " +
+                        resData.getJSONObject(0).get("status")));
+            else
+                return ResponseEntity.ok(new ResponseUtil(200, "User Not exist"));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
     }
 
 
     @RequestMapping(value = "/initiateAeps" , method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseUtil initiateAeps(@RequestBody AEPSData data) {
+    public ResponseEntity initiateAeps(@RequestBody AEPSData data) {
+        try {
+            HttpHeaders headers = new HttpHeaders();
+            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
+            HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
 
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
+            Object res = restTemplate.exchange(initiateAPI, HttpMethod.POST, entity, Object.class).getBody();
+            JSONArray resData = new JSONArray(new Gson().toJson(res));
 
-        Object res = restTemplate.exchange(initiateAPI, HttpMethod.POST, entity, Object.class).getBody();
-        System.out.println(new Gson().toJson(res));
-
-        return new ResponseUtil();
+            if (resData.length() > 0) {
+                String paymentUrl = aepsPaymentUrl + resData.getJSONObject(0).get("Result").toString();
+                return ResponseEntity.ok(new ResponseUtil(200,
+                        resData.getJSONObject(0).get("Message").toString(), paymentUrl));
+            } else
+                return ResponseEntity.ok(new ResponseUtil(200, "Invalid details"));
+        }catch(Exception e){
+            e.printStackTrace();
+        }
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
 
     }
 

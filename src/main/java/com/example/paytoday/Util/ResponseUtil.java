@@ -1,15 +1,40 @@
 package com.example.paytoday.Util;
 
+import com.fasterxml.jackson.annotation.JsonInclude;
 
+@JsonInclude(JsonInclude.Include.NON_NULL)
 public class ResponseUtil {
 
-    private String statusCode;
+    private Integer statusCode;
     private String message;
     private String accesToken;
     private String userStatus;
     private String UserType;
     private String userName;
     private String userEmail;
+    private String paymentURL;
+
+    public ResponseUtil(){}
+
+
+    public ResponseUtil(Integer statusCode, String message){
+        this.statusCode = statusCode;
+        this.message = message;
+    }
+
+    public ResponseUtil(Integer statusCode, String message, String paymentURL){
+        this.statusCode = statusCode;
+        this.message = message;
+        this.paymentURL = paymentURL;
+    }
+
+    public String getPaymentURL() {
+        return paymentURL;
+    }
+
+    public void setPaymentURL(String paymentURL) {
+        this.paymentURL = paymentURL;
+    }
 
     public String getUserName() {
         return userName;
@@ -43,11 +68,11 @@ public class ResponseUtil {
         this.userStatus = userStatus;
     }
 
-    public String getStatusCode() {
+    public Integer getStatusCode() {
         return statusCode;
     }
 
-    public void setStatusCode(String statusCode) {
+    public void setStatusCode(Integer statusCode) {
         this.statusCode = statusCode;
     }
 

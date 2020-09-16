@@ -45,20 +45,20 @@ public class AdminUser {
             user.setPassword(AES.encryptionUtil(user.getPassword()));
             User data = userDAO.getUserforLogin(user);
              if(data!=null){
-                responseUtil.setStatusCode("200");
+                responseUtil.setStatusCode(200);
                 responseUtil.setMessage("Login successfully");
                 responseUtil.setAccesToken(jwtTokenProvider.createToken(user.getEmail(), Arrays.asList("ADMIN")));
                 responseUtil.setUserName(data.getName());
                 responseUtil.setUserEmail(data.getEmail());
              }
             else{
-                responseUtil.setStatusCode("500");
+                responseUtil.setStatusCode(500);
                 responseUtil.setMessage("Invalid Credentails");
             }
             return responseUtil;
         }catch(Exception e){
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage("error in getting response");
             return responseUtil;
         }
@@ -78,7 +78,7 @@ public class AdminUser {
                 if(!password.isEmpty()&& password != null)
                     user.setPassword(password);
                 else {
-                    responseUtil.setStatusCode("500");
+                    responseUtil.setStatusCode(500);
                     responseUtil.setMessage("failed to save user data");
                     return responseUtil;
                 }
@@ -86,10 +86,10 @@ public class AdminUser {
                 Long id = userDAO.create(user);
 
                 if(id > 0){
-                    responseUtil.setStatusCode("200");
+                    responseUtil.setStatusCode(200);
                     responseUtil.setMessage("user data saved");
                 }else{
-                    responseUtil.setStatusCode("500");
+                    responseUtil.setStatusCode(500);
                     responseUtil.setMessage("failed to save user data");
                 }
                 return responseUtil;
@@ -97,7 +97,7 @@ public class AdminUser {
 
         }catch(Exception e){
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage("User Already registered");
             return responseUtil;
         }
@@ -149,7 +149,7 @@ public class AdminUser {
 
 
             if(wallet == null){
-                responseUtil.setStatusCode("200");
+                responseUtil.setStatusCode(200);
                 responseUtil.setMessage("No Req found!");
                 return responseUtil;
             }else{
@@ -162,13 +162,13 @@ public class AdminUser {
                     retailerDAO.update(retailer);
                 }
 
-                responseUtil.setStatusCode("200");
+                responseUtil.setStatusCode(200);
                 responseUtil.setMessage("Wallet req updated!");
                 return responseUtil;
             }
         }catch(Exception e){
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage(e.getMessage());
             return responseUtil;
         }
@@ -183,7 +183,7 @@ public class AdminUser {
     private static ResponseUtil validateUserdata(User user){
 
         ResponseUtil responseUtil = new ResponseUtil();
-        responseUtil.setStatusCode("500");
+        responseUtil.setStatusCode(500);
         if(user.getName()==null || user.getName().isEmpty())
             responseUtil.setMessage("Username is required");
         else if(user.getEmail()==null || user.getEmail().isEmpty())
@@ -195,7 +195,7 @@ public class AdminUser {
         else if(user.getMobile()==null || user.getMobile().isEmpty())
             responseUtil.setMessage("Mobile no is required");
         else{
-            responseUtil.setStatusCode("200");
+            responseUtil.setStatusCode(200);
             responseUtil.setMessage("user data is valid");
         }
         return responseUtil;

@@ -58,7 +58,7 @@ public class RetailerController {
                 }
 
                 else {
-                    responseUtil.setStatusCode("500");
+                    responseUtil.setStatusCode(500);
                     responseUtil.setMessage("failed to save user data");
                     return responseUtil;
                 }
@@ -66,10 +66,10 @@ public class RetailerController {
                 Long id = retailerDAO.create(retailer);
 
                 if(id > 0){
-                    responseUtil.setStatusCode("200");
+                    responseUtil.setStatusCode(200);
                     responseUtil.setMessage("user data saved");
                 }else{
-                    responseUtil.setStatusCode("500");
+                    responseUtil.setStatusCode(500);
                     responseUtil.setMessage("failed to save user data");
                 }
                 return responseUtil;
@@ -77,7 +77,7 @@ public class RetailerController {
 
         } catch (Exception e) {
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage("User Already registered");
             return responseUtil;
         }
@@ -91,7 +91,7 @@ public class RetailerController {
             retailer.setPassword(AES.encryptionUtil(retailer.getPassword().concat(retailer.getEmail())));
             Retailer data = retailerDAO.getUserforLogin(retailer);
             if (data != null) {
-                responseUtil.setStatusCode("200");
+                responseUtil.setStatusCode(200);
                 responseUtil.setMessage("Login successfully");
                 responseUtil.setAccesToken(jwtTokenProvider.createToken(retailer.getEmail(), Arrays.asList(UserType.getName(data.getUserType()))));
                 responseUtil.setUserStatus(RetailerStatus.getName(data.getRetailerStatus()));
@@ -99,13 +99,13 @@ public class RetailerController {
                 responseUtil.setUserEmail(data.getEmail());
                 responseUtil.setUserName(data.getName());
             }else{
-                responseUtil.setStatusCode("500");
+                responseUtil.setStatusCode(500);
                 responseUtil.setMessage("User not found");
             }
             return responseUtil;
         } catch (Exception e) {
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage("error in getting response");
             return responseUtil;
         }
@@ -151,16 +151,16 @@ public class RetailerController {
                 walletObj.setApproverId(data.getAgentId().toString());
                 Long id = walletDAO.create(walletObj);
                 if (id != null) {
-                    responseUtil.setStatusCode("200");
+                    responseUtil.setStatusCode(200);
                     responseUtil.setMessage("wallet data saved");
                 } else {
-                    responseUtil.setStatusCode("500");
+                    responseUtil.setStatusCode(500);
                     responseUtil.setMessage("Error in saving wallet data");
                 }
 
             }
             else{
-                responseUtil.setStatusCode("500");
+                responseUtil.setStatusCode(500);
                 responseUtil.setMessage("Invalid data");
             }
             return responseUtil;
@@ -168,7 +168,7 @@ public class RetailerController {
         }
         catch (Exception e){
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage("error in getting response");
             return responseUtil;
 
@@ -242,7 +242,7 @@ public class RetailerController {
 
 
             if(wallet == null){
-                responseUtil.setStatusCode("200");
+                responseUtil.setStatusCode(200);
                 responseUtil.setMessage("No Req found!");
                 return responseUtil;
             }else{
@@ -255,13 +255,13 @@ public class RetailerController {
                     retailerDAO.update(retailer);
                 }
 
-                responseUtil.setStatusCode("200");
+                responseUtil.setStatusCode(200);
                 responseUtil.setMessage("Wallet req updated!");
                 return responseUtil;
             }
         }catch(Exception e){
             e.printStackTrace();
-            responseUtil.setStatusCode("500");
+            responseUtil.setStatusCode(500);
             responseUtil.setMessage(e.getMessage());
             return responseUtil;
         }
@@ -273,7 +273,7 @@ public class RetailerController {
     private static ResponseUtil validateUserdata(Retailer retailer){
 
         ResponseUtil responseUtil = new ResponseUtil();
-        responseUtil.setStatusCode("500");
+        responseUtil.setStatusCode(500);
         if(retailer.getName()==null || retailer.getName().isEmpty())
             responseUtil.setMessage("Username is required");
         else if(retailer.getEmail()==null || retailer.getEmail().isEmpty())
@@ -283,7 +283,7 @@ public class RetailerController {
         else if(retailer.getMobile()==null || retailer.getMobile().isEmpty())
             responseUtil.setMessage("Mobile no is required");
         else{
-            responseUtil.setStatusCode("200");
+            responseUtil.setStatusCode(200);
             responseUtil.setMessage("user data is valid");
         }
         return responseUtil;
@@ -291,7 +291,7 @@ public class RetailerController {
     private static ResponseUtil validateWallet(Wallet wallet){
 
         ResponseUtil responseUtil = new ResponseUtil();
-        responseUtil.setStatusCode("500");
+        responseUtil.setStatusCode(500);
         if(wallet.getAmount().equals(BigDecimal.ZERO) || wallet.getAmount() == null)
             responseUtil.setMessage("Amount is required");
         else if(wallet.getTransactionType().equals(null) )
@@ -301,7 +301,7 @@ public class RetailerController {
         else if(wallet.getTransactionType()==null)
             responseUtil.setMessage("Option is required");
         else{
-            responseUtil.setStatusCode("200");
+            responseUtil.setStatusCode(200);
             responseUtil.setMessage("Wallet is valid");
         }
         return responseUtil;
