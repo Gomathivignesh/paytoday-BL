@@ -19,6 +19,8 @@
 -- Table structure for table `admin_user`
 --
 
+create database `paytoday`;
+
 DROP TABLE IF EXISTS `admin_user`;
 /*!40101 SET @saved_cs_client     = @@character_set_client */;
  SET character_set_client = utf8mb4 ;
