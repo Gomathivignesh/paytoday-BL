@@ -6,7 +6,7 @@ import lombok.Data;
 
 @Data
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class BBPSData {
+public class BBPSReqData {
 
     @JsonProperty(value="securityKey")
     private String securityKey;
@@ -44,8 +44,31 @@ public class BBPSData {
     @JsonProperty(value="email")
     private String email;
 
+    @JsonProperty(value="coverage")
+    private String coverage;
 
+    @JsonProperty(value="categoryId")
+    private String categoryId;
 
+    @JsonProperty(value="billerId")
+    private String billerId;
 
+    @JsonProperty(value="crno")
+    private String customerNumber;
+
+    @JsonProperty(value="ip")
+    private String ip;
+
+    @JsonProperty(value="mac")
+    private String mac;
+
+    @JsonProperty(value="agentId")
+    private String agentId;
+
+    @JsonProperty(value="billAmount")
+    private String amount;
+
+    @JsonProperty(value="BillerCategory")
+    private String billerCategory;
 
 }

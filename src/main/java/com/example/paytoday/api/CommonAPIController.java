@@ -16,7 +16,7 @@ import java.util.List;
 
 @RestController
 @RequestMapping("/sharedUtils")
-public class APICommonController {
+public class CommonAPIController {
 
     @Autowired
     RestTemplate restTemplate;

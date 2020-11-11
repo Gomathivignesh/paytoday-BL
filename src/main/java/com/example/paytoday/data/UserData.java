@@ -9,8 +9,36 @@ public class UserData {
     private String UserType;
     private String UserStatus;
     private BigDecimal WalletBalance;
+    private String accessToken;
+    private String refreshToken;
+    private String role;
 
     List<UserData> retailerData;
+
+
+    public String getRole() {
+        return role;
+    }
+
+    public void setRole(String role) {
+        this.role = role;
+    }
+
+    public String getAccessToken() {
+        return accessToken;
+    }
+
+    public void setAccessToken(String accessToken) {
+        this.accessToken = accessToken;
+    }
+
+    public String getRefreshToken() {
+        return refreshToken;
+    }
+
+    public void setRefreshToken(String refreshToken) {
+        this.refreshToken = refreshToken;
+    }
 
     public String getUsername() {
         return username;
