@@ -4,9 +4,11 @@ import com.example.paytoday.dao.WalletDAO;
 import com.example.paytoday.model.Wallet;
 import org.hibernate.criterion.Projections;
 import org.hibernate.criterion.Restrictions;
+import org.hibernate.transform.Transformers;
 import org.springframework.stereotype.Component;
 
 import java.math.BigDecimal;
+import java.util.List;
 
 
 @Component
@@ -14,12 +16,29 @@ public class WalletDAOImpl extends BaseEntityDAOImpl<Wallet> implements WalletDA
 
 
     @Override
-    public BigDecimal getWalletAmount(Long userId) {
+    public List<Wallet> getWalletAmount(List<Long> userIds) {
 
-        return (BigDecimal) getSession().createCriteria(Wallet.class)
-                .add(Restrictions.eq("userId", userId.toString()))
-                .add(Restrictions.eq("status", 2))
-                .setProjection(Projections.sum("amount"))
+        return getSession().createCriteria(Wallet.class)
+                .add(Restrictions.in("userId", userIds))
+                .add(Restrictions.eq("status", 1))
+
+                .setProjection(Projections.projectionList()
+                        .add(Projections.property("createdDate"), "createdDate")
+                        .add(Projections.property("amount"), "amount")
+                        .add(Projections.property("transactionType"), "transactionType")
+                        .add(Projections.property("transferType"), "transferType")
+                        .add(Projections.property("imgUrl"), "imgUrl")
+                        .add(Projections.property("reference"), "reference"))
+                .setResultTransformer(Transformers.aliasToBean(Wallet.class))
+                .list();
+    }
+
+    @Override
+    public Wallet getWalletRequestByRef(String ref){
+
+        return (Wallet) getSession().createCriteria(Wallet.class)
+                .add(Restrictions.in("reference", ref))
                 .uniqueResult();
+
     }
 }

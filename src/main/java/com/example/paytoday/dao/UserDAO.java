@@ -9,8 +9,6 @@ import java.util.Map;
 
 public interface UserDAO extends BaseDAO<User> {
 
-//    User getUserforLogin(User user);
-
     User getUserbyName(String username);
 
     User getUserbyEmail(String email);
@@ -19,8 +17,8 @@ public interface UserDAO extends BaseDAO<User> {
 //    List<User> getRetailerByStatus(RetailerStatus status);
 //
     List<Map<String,String>> getWalletRequest(String approver);
-//
-//    List<User> getRetailerByDistributor(Long distributorId);
+
+    List<User> getAllUserByParentEmailId(String emailId);
 
 
 

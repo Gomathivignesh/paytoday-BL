@@ -1,14 +1,10 @@
 package com.example.paytoday.model;
-
-
-import com.example.paytoday.Util.RetailerStatus;
-import com.example.paytoday.Util.UserRole;
-import com.example.paytoday.Util.UserType;
-
+import com.fasterxml.jackson.annotation.JsonInclude;
 import javax.persistence.*;
 import java.io.Serializable;
-import java.util.Set;
 
+
+@JsonInclude(JsonInclude.Include.NON_NULL)
 @Entity
 @Table(name="user")
 public class User extends BaseEntity implements Serializable {
@@ -67,12 +63,13 @@ public class User extends BaseEntity implements Serializable {
     @Column(name = "parent_id")
     private Long parentId;
 
+    @Column(name = "email")
+    private String email;
+
     @Transient
     private String firstName;
     @Transient
     private String lastName;
-    @Transient
-    private String email;
     @Transient
     private String password;
     @Transient

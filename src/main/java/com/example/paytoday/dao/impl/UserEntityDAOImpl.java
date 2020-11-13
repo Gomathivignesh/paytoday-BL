@@ -60,6 +60,16 @@ public class UserEntityDAOImpl extends BaseEntityDAOImpl<User> implements UserDA
         return responseMap;
     }
 
+    @Override
+    public List<User> getAllUserByParentEmailId(String emailId){
+        Long parentUserId = getUserbyEmail(emailId).getId();
+
+         return  getSession().createCriteria(User.class)
+                .add(Restrictions.eq("parentId", parentUserId))
+                .list();
+
+    }
+
 
 
 

@@ -210,35 +210,4 @@ public class BBPSController {
         return bbpsReqData;
     }
 
-
-//
-    public static void main(String a[])
-    {
-//        BBPSReqData bbpsData = new BBPSReqData();
-//        bbpsData.setSecurityKey("e0f90aae19f8b5d91873eba4eaaf7826");
-//        bbpsData.setRequestBy("MM000600");
-//        bbpsData.setName("GVBBPS1111");
-//        bbpsData.setContact("Test");
-//        bbpsData.setMobile("9486023945");
-//        bbpsData.setShopName("gv-shop11");
-//        bbpsData.setBusiness("Kirana Shop");
-//        bbpsData.setAddress1("test1");
-//        bbpsData.setAddress2("test1");
-//        bbpsData.setState("33");
-//        bbpsData.setCity("539");
-//        bbpsData.setLatitude("122.121.2.1");
-//        bbpsData.setLongitude("122.121.2.1");
-//        bbpsData.setEmail("gomathivigneshm.12221@gmail.com");
-//        bbpsData.setPincode("628801");
-//        onboardBBPS(bbpsData);
-
-        //getBillerCategories();
-//        getBillerByCategories();
-       // getAMountForBiller();
-    }
-
-
-
-
-
 }

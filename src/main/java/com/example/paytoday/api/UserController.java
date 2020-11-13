@@ -1,6 +1,7 @@
 package com.example.paytoday.api;
 
 
+import com.example.paytoday.Util.Constants;
 import com.example.paytoday.Util.CustomException;
 import com.example.paytoday.Util.RetailerStatus;
 import com.example.paytoday.Util.WalletStatus;
@@ -15,6 +16,7 @@ import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Config;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
+import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.admin.client.token.TokenManager;
@@ -37,6 +39,7 @@ import java.io.IOException;
 import java.math.BigDecimal;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.stream.Collectors;
 
 import static java.util.Arrays.asList;
 
@@ -51,7 +54,6 @@ public class UserController {
 
     @Autowired
     private UserDAO userDAO;
-
 
 
     @Autowired
@@ -137,7 +139,7 @@ public class UserController {
     @RequestMapping(value = "/login", method = RequestMethod.POST)
     public ResponseEntity login(@RequestBody User user) {
         try{
-
+            UsersResource keycloakUser = realmResource.users();
             List<UserRepresentation> userResource;
             if(EmailValidator.getInstance().isValid(user.getUsername()))
                 userResource =  realmResource.users().search("","","",user.getUsername(),null,null);
@@ -155,11 +157,16 @@ public class UserController {
                 TokenManager token = new TokenManager(new Config(SERVER_URL, realm, user.getUsername(), user.getPassword(), "Paytoday-Client", "f718c7ac-4b0e-48e3-b9a4-40d5be86b93a"),
                         new ResteasyClientBuilder().connectionPoolSize(10).build());
 
+
+                String role = keycloakUser.get(userRep.getId()).roles().getAll()
+                        .getClientMappings().get("Paytoday-Client").getMappings().stream().findFirst().get().getName();
+
+
                 UserData userData = new UserData();
                 userData.setUsername(user.getUsername());
                 userData.setAccessToken(token.getAccessTokenString());
                 userData.setRefreshToken(token.getAccessToken().getRefreshToken());
-                userData.setRole("");
+                userData.setRole(role);
 
                 return ResponseEntity.ok(userData);
 
@@ -178,7 +185,8 @@ public class UserController {
 
     @RequestMapping(value = "/addWallet", method = RequestMethod.POST, consumes = MediaType.MULTIPART_FORM_DATA_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity addWallet(@RequestParam String wallet, @RequestParam("file") MultipartFile file) throws JsonProcessingException {
+    //TODO whitelisted for retailer and need to add file later @RequestParam("file") MultipartFile file
+    public ResponseEntity addWallet(@RequestParam String wallet) throws JsonProcessingException {
         System.out.println("wallet req: "+ wallet);
 
         ObjectMapper jsonData = new ObjectMapper();
@@ -186,14 +194,18 @@ public class UserController {
         try {
             ResponseEntity responseUtil = validateWallet(walletObj);
 
-            User data = userDAO.getUserbyEmail(walletObj.getUserId());
+            User data = userDAO.getUserbyEmail(walletObj.getUser());
             if (data != null) {
-                String filename = fileUpload(walletObj.getUserId(), file);
-                walletObj.setUserId(data.getId().toString());
-                walletObj.setImgUrl(filename);
+                //TODO needs to finalize the file upload.
+                //String filename = fileUpload(walletObj.getUserId(), file);
+                walletObj.setUserId(data.getId());
+                walletObj.setImgUrl("Dummy.png");
                 walletObj.setStatus(WalletStatus.INITIATED.getValue());
-                walletObj.setReference("PAY".concat(data.getEmail().substring(0,4)).concat(new SimpleDateFormat("MMDDHHmm").format(new Date())));
-                walletObj.setApproverId(data.getParentId().toString());
+                walletObj.setReference("PAY".concat(data.getEmail().substring(0,4))
+                        .concat(new SimpleDateFormat("MMDDHHmm").format(new Date())));
+                walletObj.setTransactionType(Constants.AMT_CREDIT);
+                walletObj.setCreatedDate(new Date());
+                walletObj.setCreatedBy(walletObj.getUser().toString());
                 Long id = walletDAO.create(walletObj);
                 if (id != null) {
                     return ResponseEntity.ok("wallet data saved");
@@ -215,42 +227,44 @@ public class UserController {
 
     @RequestMapping(value ="/getWalletRequest", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
-    public List<Map<String, String>> getPendingWalletReq(@RequestParam String approverEmail){
-
-        List<Map<String, String>> response = new ArrayList<>();
+    //TODO enable for distributor
+    public List<Wallet> getPendingWalletReq(@RequestParam String approverEmail){
         try{
-            response = userDAO.getWalletRequest(userDAO.getUserbyEmail(approverEmail).getId().toString());
-            return response;
+            return walletDAO.getWalletAmount(
+                    userDAO.getAllUserByParentEmailId(approverEmail).stream().map(data -> data.getId()).collect(Collectors.toList()));
 
         }catch (Exception e){
             e.printStackTrace();
-            return response;
+            return null;
         }
     }
 
-    @RequestMapping(value ="/approveWalletReq", method = RequestMethod.PUT,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity updateUserByEmail(@RequestParam String walletRef){
+
+    @RequestMapping(value ="/approveWallet", method = RequestMethod.PUT, produces = MediaType.APPLICATION_JSON_VALUE)
+    //TODO enable for distributor
+    public ResponseEntity approveWallet(@RequestParam String walletRef, @RequestParam Boolean doApprove){
 
         try{
+            Wallet wallet = walletDAO.getWalletRequestByRef(walletRef);
 
-            Wallet wallet = walletDAO.getById(new Wallet(), Long.parseLong(walletRef.split("-")[1]));
-            wallet.setStatus(WalletStatus.APPROVED.getValue());
+            wallet.setStatus(doApprove ? WalletStatus.APPROVED.getValue(): WalletStatus.REJECTED.getValue());
             walletDAO.update(wallet);
 
-            User user = userDAO.getById(new User(), Long.parseLong(wallet.getUserId()));
+            User user = userDAO.getById(new User(), wallet.getUserId());
 
-
-            if(wallet == null){
+            if(wallet == null)
                return  ResponseEntity.ok("No Req found!");
-            }else{
-                if(user.getRetailerStatus() == RetailerStatus.ONBOARDED.getValue()) {
+            else{
+                if(user.getRetailerStatus() == RetailerStatus.ONBOARDED.getValue() && doApprove) {
                     user.setRetailerStatus(RetailerStatus.ACTIVE.getValue());
                     user.setAllowRecharge(Boolean.TRUE);
                     user.setAllowDMT(Boolean.TRUE);
                     user.setAllowBBPS(Boolean.TRUE);
                     user.setAllowAEPS(Boolean.TRUE);
                     userDAO.update(user);
+                //TODO Register with mahagram
+
+
                 }
 
                 return  ResponseEntity.ok("Wallet req updated!");
@@ -274,7 +288,7 @@ public class UserController {
         if(user.getRole().equals("Paytoday-Admin"))
             user.setParentId(0L);
         else{
-            user.setParentId(userDAO.getUserbyName(user.getParentEmail()).getId());
+            user.setParentId(userDAO.getUserbyEmail(user.getParentEmail()).getId());
         }
     }
 
@@ -283,9 +297,7 @@ public class UserController {
 
         if(wallet.getAmount().equals(BigDecimal.ZERO) || wallet.getAmount() == null)
             return ResponseEntity.ok("Amount is required");
-        else if(wallet.getTransactionType().equals(null) )
-            return ResponseEntity.ok("transfer_type is required");
-        else if(wallet.getUserId() == null || wallet.getUserId().isEmpty())
+        else if(wallet.getUser() == null)
             return ResponseEntity.ok("User_id is required");
         else if(wallet.getTransactionType()==null)
             return ResponseEntity.ok("Option is required");
