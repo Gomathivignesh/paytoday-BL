@@ -43,37 +43,6 @@ public class AEPSController {
     private String aepsPaymentUrl;
 
 
-
-
-
-    @RequestMapping(value = "/registerAEPS" , method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
-            produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity registerAepsuser(@RequestBody AEPSData data) {
-        try {
-            HttpHeaders headers = new HttpHeaders();
-            headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-            HttpEntity<Object> entity = new HttpEntity<Object>(data, headers);
-
-            Object res = restTemplate.exchange(registrationAPI, HttpMethod.POST, entity, Object.class).getBody();
-            JSONArray resData = new JSONArray(new Gson().toJson(res));
-            System.out.println(new Gson().toJson(resData.getJSONObject(0)));
-            if (!resData.getJSONObject(0).isNull("StatusCode") && resData.getJSONObject(0).get("StatusCode").equals("999")  ) {
-                return ResponseEntity.ok(new ResponseUtil(200, resData.getJSONObject(0).get("Message").toString()));
-            } else if(!resData.getJSONObject(0).isNull("Statuscode") && resData.getJSONObject(0).get("Statuscode").equals("000")) {
-                AepsInfo aepsInfo = new AepsInfo();
-                aepsInfo.setAepsId(resData.getJSONObject(0).get("bc_id").toString());
-                aepsInfo.setStatus("Pending");
-                aepsDAO.create(aepsInfo);
-                return ResponseEntity.ok(new ResponseUtil(200, "user Registerd"));
-            }
-        }catch(Exception e){
-            e.printStackTrace();
-        }
-
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).build();
-
-    }
-
     @RequestMapping(value = "/validateAEPS" , method = RequestMethod.POST, consumes = MediaType.APPLICATION_JSON_VALUE,
             produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity validateAeps(@RequestBody AEPSData data) {

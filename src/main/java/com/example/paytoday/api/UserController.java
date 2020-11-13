@@ -7,16 +7,18 @@ import com.example.paytoday.Util.RetailerStatus;
 import com.example.paytoday.Util.WalletStatus;
 import com.example.paytoday.dao.UserDAO;
 import com.example.paytoday.dao.WalletDAO;
+import com.example.paytoday.data.AEPSData;
+import com.example.paytoday.data.BBPSReqData;
 import com.example.paytoday.data.UserData;
 import com.example.paytoday.model.User;
 import com.example.paytoday.model.Wallet;
+import com.example.paytoday.service.MahagramService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import org.jboss.resteasy.client.jaxrs.ResteasyClientBuilder;
 import org.keycloak.admin.client.Config;
 import org.keycloak.admin.client.Keycloak;
 import org.keycloak.admin.client.resource.RealmResource;
-import org.keycloak.admin.client.resource.RoleScopeResource;
 import org.keycloak.admin.client.resource.UserResource;
 import org.keycloak.admin.client.resource.UsersResource;
 import org.keycloak.admin.client.token.TokenManager;
@@ -55,9 +57,11 @@ public class UserController {
     @Autowired
     private UserDAO userDAO;
 
-
     @Autowired
     private WalletDAO walletDAO;
+
+    @Autowired
+    private MahagramService mahagramService;
 
     @Autowired
     public UserController(@Value("${keycloak.auth-server-url}")  String SERVER_URL, @Value("${keycloak.realm}") String realm){
@@ -263,6 +267,8 @@ public class UserController {
                     user.setAllowAEPS(Boolean.TRUE);
                     userDAO.update(user);
                 //TODO Register with mahagram
+                    mahagramService.registerAepsUser(populateAepsData(user));
+                    mahagramService.registerBBPSUser(populateBBPSData(user));
 
 
                 }
@@ -324,6 +330,63 @@ public class UserController {
             return loc + filename;
         }
         return null;
+    }
+
+    private AEPSData populateAepsData(User user){
+        String DummyData = "Test";
+
+        List<UserRepresentation> userResource =  realmResource.users().search(user.getUsername());
+        AEPSData aepsData = new AEPSData();
+        aepsData.setName(userResource.get(0).getUsername());
+        aepsData.setFname(userResource.get(0).getFirstName());
+        aepsData.setLname(userResource.get(0).getLastName());
+        aepsData.setEmail(userResource.get(0).getEmail());
+        //TODO needs to persist mobile
+        aepsData.setPhone1("976543210");
+        aepsData.setPhone2("976543210");
+        aepsData.setDob("22-05-1994");
+        aepsData.setDistrict("559");
+        aepsData.setState("31");
+        aepsData.setPin("628801");
+        aepsData.setLandmark(DummyData);
+        aepsData.setLoc(DummyData);
+        aepsData.setBlock(DummyData);
+        aepsData.setAddress(DummyData);
+        aepsData.setCity(DummyData);
+        aepsData.setMohhalla(DummyData);
+        aepsData.setShopname(DummyData);
+        aepsData.setPan("BTRPG3129Y");
+        aepsData.setSalt("MH@GW#LPK3@32#4N9@580#717#171");
+        aepsData.setSecret("MH@GW#LPK3@32#4N9@580#717#171");
+        aepsData.setShopType("Mobile Shop");
+        aepsData.setQualification("Graduate");
+        aepsData.setLocationType("Urban");
+        aepsData.setPopulation("10000 to 50000");
+        return aepsData;
+
+    }
+
+    private BBPSReqData populateBBPSData(User user){
+        String DummyData = "Test";
+        List<UserRepresentation> userResource =  realmResource.users().search(user.getUsername());
+        BBPSReqData bbpsReqData = new BBPSReqData();
+        bbpsReqData.setSecurityKey("e0f90aae19f8b5d91873eba4eaaf7826");
+        bbpsReqData.setRequestBy("MM000600");
+        bbpsReqData.setName(user.getUsername());
+        bbpsReqData.setContact(user.getUsername());
+        bbpsReqData.setEmail(user.getEmail());
+        bbpsReqData.setMobile("9876543210");
+        bbpsReqData.setShopName(DummyData);
+        bbpsReqData.setBusiness(DummyData);
+        bbpsReqData.setAddress1(DummyData);
+        bbpsReqData.setAddress2(DummyData);
+        bbpsReqData.setState("31");
+        bbpsReqData.setCity("559");
+        bbpsReqData.setPincode("628801");
+        bbpsReqData.setLatitude("122.121.2.9");
+        bbpsReqData.setLongitude("121.121.2.8");
+
+        return bbpsReqData;
     }
 
 

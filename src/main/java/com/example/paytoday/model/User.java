@@ -36,7 +36,6 @@ public class User extends BaseEntity implements Serializable {
     @Column(name="allow_bbps", nullable= false)
     private Boolean isAllowBBPS;
 
-
     @Column(name="shopname")
     private String shopname;
 

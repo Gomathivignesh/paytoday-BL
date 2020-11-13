@@ -25,7 +25,7 @@ public class AEPSData {
     private String dob;
 
     @JsonProperty(value="bc_state")
-    private Integer state;
+    private String state;
     @JsonProperty(value="bc_district")
     private String district;
     @JsonProperty(value="bc_address")

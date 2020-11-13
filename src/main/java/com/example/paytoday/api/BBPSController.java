@@ -47,34 +47,7 @@ public class BBPSController {
 
 
 
-    // needs to be Trigger manually
-    public  ResponseEntity onboardBBPS(@RequestParam BBPSReqData bbpsData){
-        restTemplate.getInterceptors().add(new BasicAuthorizationInterceptor(bbpsUsername, bbpsPassword));
-        HttpHeaders headers = new HttpHeaders();
-        headers.setAccept(Arrays.asList(MediaType.APPLICATION_JSON));
-        HttpEntity<Object> entity = new HttpEntity<Object>(bbpsData, headers);
 
-        Object res = restTemplate.exchange(registrationAPI, HttpMethod.POST, entity, Object.class).getBody();
-
-        JSONObject json = new JSONObject(new Gson().toJson(res));
-        BBPSResData response = new BBPSResData();
-
-        if(json.isNull("ResponseMessage")) {
-            JSONObject responseMessage = json.getJSONArray("Message").getJSONObject(0);
-            JSONObject data = json.getJSONArray("Data").getJSONObject(0);
-            HashMap<String, Object> responseMsg = new Gson().fromJson(responseMessage.toString(), HashMap.class);
-            HashMap<String, Object> responseData = new Gson().fromJson(data.toString(), HashMap.class);
-
-            response.setMessage(String.valueOf(responseMsg.get("message")));
-            response.setAgentId(String.valueOf(responseData.get("agentid")));
-            response.setAgentId(String.valueOf(responseData.get("state")));
-            return ResponseEntity.ok(response);
-        }
-        else{
-            response.setMessage(String.valueOf(json.get("ResponseMessage")));
-            return ResponseEntity.ok(response);
-        }
-    }
 
     @RequestMapping(value = "/getBillerCategory", method = RequestMethod.GET,
             produces = MediaType.APPLICATION_JSON_VALUE)
